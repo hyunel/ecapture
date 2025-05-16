@@ -241,6 +241,10 @@ func (n *MNsprProbe) setupManagers() error {
 		// 填充 RewriteContants 对应map
 		n.bpfManagerOptions.ConstantEditors = n.constantEditor()
 	}
+
+	if err := n.conf.ApplyFunctionOffset(n.bpfManager.Probes); err != nil {
+		return err
+	}
 	return nil
 }
 

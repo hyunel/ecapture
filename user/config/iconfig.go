@@ -16,7 +16,10 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
+	manager "github.com/gojue/ebpfmanager"
 	"os"
+	"strconv"
 
 	"github.com/gojue/ecapture/pkg/util/kernel"
 )
@@ -55,6 +58,10 @@ type IConfig interface {
 	SetEventCollectorAddr(string)
 	// GetEventCollectorAddr returns the event collector address
 	GetEventCollectorAddr() string
+	// SetFunctionOffset sets the function offsets for manual specification
+	SetFunctionOffset(map[string]string)
+	// ApplyFunctionOffset applies the function offsets to the probes
+	ApplyFunctionOffset([]*manager.Probe) error
 	// GetPerCpuMapSize returns the eBPF map size per CPU
 	GetPerCpuMapSize() int
 	// SetPerCpuMapSize sets the eBPF map size per CPU
@@ -107,6 +114,8 @@ type BaseConfig struct {
 	LoggerAddr         string `json:"logger_addr"`          // Address for logger output
 	LoggerType         uint8  `json:"logger_type"`          // Logger type (0:stdout, 1:file, 2:tcp)
 	EventCollectorAddr string `json:"event_collector_addr"` // Address of the event collector server
+
+	FunctionOffset map[string]string `json:"function_offset"` // Manual specified function offsets
 }
 
 func (c *BaseConfig) GetPid() uint64 {
@@ -139,6 +148,32 @@ func (c *BaseConfig) SetEventCollectorAddr(addr string) {
 
 func (c *BaseConfig) GetEventCollectorAddr() string {
 	return c.EventCollectorAddr
+}
+
+func (c *BaseConfig) SetFunctionOffset(offset map[string]string) {
+	c.FunctionOffset = offset
+}
+
+func (c *BaseConfig) ApplyFunctionOffset(probes []*manager.Probe) error {
+	for key, offsetStr := range c.FunctionOffset {
+		found := false
+		for _, probe := range probes {
+			if probe.AttachToFuncName != key {
+				continue
+			}
+			offset, err := strconv.ParseUint(offsetStr, 0, 64)
+			if err != nil {
+				return err
+			}
+			probe.UAddress = offset
+			found = true
+			break
+		}
+		if !found {
+			return errors.New("FunctionOffset key " + key + " is not found in probes")
+		}
+	}
+	return nil
 }
 
 func (c *BaseConfig) SetAddrType(t uint8) {

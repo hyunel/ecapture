@@ -79,7 +79,9 @@ func (b *MZshProbe) start() error {
 	}
 
 	// setup the managers
-	b.setupManagers()
+	if err = b.setupManagers(); err != nil {
+		return err
+	}
 
 	// initialize the bootstrap manager
 	if err = b.bpfManager.InitWithOptions(bytes.NewReader(byteBuf), b.bpfManagerOptions); err != nil {
@@ -141,7 +143,7 @@ func (b *MZshProbe) constantEditor() []manager.ConstantEditor {
 	return editor
 }
 
-func (b *MZshProbe) setupManagers() {
+func (b *MZshProbe) setupManagers() error {
 	var binaryPath string
 	switch b.conf.(*config.ZshConfig).ElfType {
 	case config.ElfTypeBin:
@@ -193,6 +195,10 @@ func (b *MZshProbe) setupManagers() {
 		b.bpfManagerOptions.ConstantEditors = b.constantEditor()
 	}
 
+	if err := b.conf.ApplyFunctionOffset(b.bpfManager.Probes); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *MZshProbe) DecodeFun(em *ebpf.Map) (event.IEventStruct, bool) {

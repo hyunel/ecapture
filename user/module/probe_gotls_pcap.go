@@ -136,6 +136,10 @@ func (g *GoTLSProbe) setupManagersPcap() error {
 		// 填充 RewriteContants 对应map
 		g.bpfManagerOptions.ConstantEditors = g.constantEditor()
 	}
+
+	if err := g.conf.ApplyFunctionOffset(g.bpfManager.Probes); err != nil {
+		return err
+	}
 	return nil
 }
 

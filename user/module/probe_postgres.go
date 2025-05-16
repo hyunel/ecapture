@@ -150,6 +150,10 @@ func (p *MPostgresProbe) setupManagers() error {
 			Max: math.MaxUint64,
 		},
 	}
+
+	if err := p.conf.ApplyFunctionOffset(p.bpfManager.Probes); err != nil {
+		return err
+	}
 	return nil
 }
 

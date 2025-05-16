@@ -81,6 +81,10 @@ func (m *MGnutlsProbe) setupManagersText() error {
 		// 填充 RewriteContants 对应map
 		m.bpfManagerOptions.ConstantEditors = m.constantEditor()
 	}
+	
+	if err := m.conf.ApplyFunctionOffset(m.bpfManager.Probes); err != nil {
+		return err
+	}
 	return nil
 }
 

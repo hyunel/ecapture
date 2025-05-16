@@ -136,6 +136,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&globalConf.EventCollectorAddr, "eventaddr", "", "the server address that receives the captured event. --eventaddr tcp://127.0.0.1:8090, default: same as logaddr")
 	rootCmd.PersistentFlags().StringVar(&globalConf.Listen, "listen", eCaptureListenAddr, "listen on this address for http server, default: 127.0.0.1:28256")
 	rootCmd.PersistentFlags().Uint64VarP(&globalConf.TruncateSize, "tsize", "t", defaultTruncateSize, "the truncate size in text mode, default: 0 (B), no truncate")
+	rootCmd.PersistentFlags().StringToStringVar(&globalConf.FunctionOffset, "offset", map[string]string{}, "manually specify the function offset, format: <function>:<offset>, e.g. SSL_read=0x1234")
 
 	rootCmd.SilenceUsage = true
 }
@@ -159,6 +160,7 @@ func setModConfig(globalConf config.BaseConfig, modConf config.IConfig) {
 	modConf.SetPerCpuMapSize(globalConf.PerCpuMapSize)
 	modConf.SetAddrType(loggerTypeStdout)
 	modConf.SetTruncateSize(globalConf.TruncateSize)
+	modConf.SetFunctionOffset(globalConf.FunctionOffset)
 
 	switch ByteCodeFiles {
 	case "core":
@@ -234,8 +236,12 @@ func runModule(modName string, modConfig config.IConfig) {
 	var isReload bool
 	var reRloadConfig = make(chan config.IConfig, 10)
 
-	// listen http server
+	// listen http server if listen is not empty
 	go func() {
+		if globalConf.Listen == "" {
+			logger.Info().Msg("http server is disabled")
+			return
+		}
 		logger.Info().Str("listen", globalConf.Listen).Send()
 		logger.Info().Msg("https server starting...You can upgrade the configuration file via the HTTP interface.")
 		var ec = http.NewHttpServer(globalConf.Listen, reRloadConfig, logger)

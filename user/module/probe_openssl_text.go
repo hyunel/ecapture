@@ -183,6 +183,10 @@ func (m *MOpenSSLProbe) setupManagersText() error {
 	} else {
 		m.logger.Warn().Msg("Your kernel version is less than 5.2, GlobalVar is disabled, the following parameters will be ignored:[target_pid, target_uid, target_port]")
 	}
+
+	if err := m.conf.ApplyFunctionOffset(m.bpfManager.Probes); err != nil {
+		return err
+	}
 	return nil
 }
 

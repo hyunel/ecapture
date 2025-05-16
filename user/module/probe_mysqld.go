@@ -208,6 +208,10 @@ func (m *MMysqldProbe) setupManagers() error {
 			Max: math.MaxUint64,
 		},
 	}
+
+	if err := m.conf.ApplyFunctionOffset(m.bpfManager.Probes); err != nil {
+		return err
+	}
 	return nil
 }
 
