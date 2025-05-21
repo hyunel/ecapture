@@ -89,15 +89,15 @@ jobs:
         run: |
           make clean
           make env
-          make -f builder/Makefile.release release SNAPSHOT_VERSION=${{ github.ref_name }}
+          make -f builder/Makefile.release release SNAPSHOT_VERSION=${{ github.ref_name }} DEBUG=1
       - name: Release arm64 (CROSS COMPILATION)
         run: |
           make clean
           make env
-          CROSS_ARCH=arm64 make -f builder/Makefile.release release SNAPSHOT_VERSION=${{ github.ref_name }}
+          CROSS_ARCH=arm64 make -f builder/Makefile.release release SNAPSHOT_VERSION=${{ github.ref_name }} DEBUG=1
       - name: Publish
         run: |
-          make -f builder/Makefile.release publish SNAPSHOT_VERSION=${{ github.ref_name }}
+          make -f builder/Makefile.release publish SNAPSHOT_VERSION=${{ github.ref_name }} DEBUG=1
   build-docker-image:
     runs-on: ubuntu-22.04
     steps:
