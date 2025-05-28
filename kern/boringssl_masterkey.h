@@ -298,7 +298,7 @@ int probe_ssl_master_key(struct pt_regs *ctx) {
         u64 ssl_session_st_addr;
         ssl_session_st_addr = get_session_addr(ssl_st_ptr, s3_address, ssl_hs_st_addr);
         if (ssl_session_st_addr == 0) {
-            //            debug_bpf_printk("ssl_session_st_addr is null\n");
+            debug_bpf_printk("ssl_session_st_addr is null\n");
             return 0;
         }
         debug_bpf_printk("s3_address:%llx, ssl_session_st_addr addr :%llx\n", s3_address, ssl_session_st_addr);
