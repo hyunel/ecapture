@@ -94,6 +94,9 @@ func (m *MOpenSSLProbe) initOpensslOffset() {
 		// "boringssl na" is a special version for non-android
 		// git repo: https://github.com/google/boringssl
 		"boringssl na": "boringssl_na_kern.o",
+
+		// tiktok version boringssl
+		"boringssl tt": "boringssl_tt_kern.o",
 	}
 
 	// in openssl source files, there are 4 offset groups for all 1.1.1* version.

@@ -188,6 +188,7 @@ BPF_NOCORE_TAG = $(subst .,_,$(KERN_RELEASE)):$(subst .,_,$(VERSION_NUM))
 # BPF Source file
 #
 TARGETS := kern/boringssl_na
+TARGETS += kern/boringssl_tt
 TARGETS += kern/boringssl_a_13
 TARGETS += kern/boringssl_a_14
 TARGETS += kern/boringssl_a_15
